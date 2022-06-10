@@ -136,31 +136,36 @@ class ProvisionerLancium:
           continue # just build the idxs
 
         label_str=larr[idxs['name']]
-        if label_str.startswith('lancium-app:%s '%self.app_name):
+        if label_str.startswith('lancium-app:%s lancium-job:'%self.app_name):
           larr=line.strip().split(",")
           if len(larr)!=3:
             continue # should never get in here, but just in case
           pod_id=larr[idxs['id']]
           pod_status=larr[idxs['status']]
           label_list=label_str.split()
-          podattrs={'Name':pod_id,'Status':pod_status}
+          podattrs={'lancium-id':pod_id, 'Status':pod_status}
           for el in label_list:
              elarr=el.split(":",1)
              if len(elarr)!=2:
                continue #ignore malformed entries
              podattrs[elarr[0]]=elarr[1]
+          podattrs['Name']=podattrs['lancium-job']
           pods.append(podattrs)
 
       return pods
 
-   def submit(self, attrs, n_pods=1):
+   def submit_one(self, attrs):
       # first ensure that the basic int values are valid
       int_vals={}
       for k in ('CPUs','GPUs','Memory','Disk'):
          int_vals[k] = int(attrs[k])
 
+      job_name = '%s-%x-%06x'%(self.app_name,self.start_time,self.submitted)
+      self.submitted = self.submitted + 1
+
       labels = [
                  'lancium-app:%s'%self.app_name,
+                 'lancium-job:%s'%job_name,
                  'prp-htcondor-portal:%s'%'wn',
                  'PodCPUs:%i'%int_vals['CPUs'],
                  'PodGPUs:%i'%int_vals['GPUs'],
@@ -181,8 +186,9 @@ class ProvisionerLancium:
             }
 
       #TODO: Request Ephemeral storage
-      env_list = [ ('Lancium_PROVISIONER_TYPE', 'PRPHTCondorProvisioner'),
-                   ('Lancium_PROVISIONER_NAME', self.app_name),
+      env_list = [ ('LANCIUM_PROVISIONER_TYPE', 'PRPHTCondorProvisioner'),
+                   ('LANCIUM_PROVISIONER_NAME', self.app_name),
+                   ('LANCIUM_JOB_NAME', job_name),
                    ('CONDOR_HOST', self.condor_host),
                    ('STARTD_NOCLAIM_SHUTDOWN', '1200'),
                    ('NUM_CPUS', "%i"%int_vals['CPUs']),
@@ -212,9 +218,6 @@ class ProvisionerLancium:
       priority_class = self._get_priority_class(attrs)
       # TODO: use priority_class
 
-      job_name = '%s-%x-%06x'%(self.app_name,self.start_time,self.submitted)
-      self.submitted = self.submitted + 1
-
       # create the cmdline string (as a list first)
       sh_slist=["lcli", "job", "run",\
                 "--name", label_str,\
@@ -228,19 +231,18 @@ class ProvisionerLancium:
         sh_slist.append("--%s"%k)
         sh_slist.append(el)
 
+      process = subprocess.Popen(sh_slist,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      stdout, stderr = process.communicate()
+      if process.returncode!=0:
+        raise OSError("Failed to launch Lancium job: %s"%stderr.decode())
+      # TODO: Better error handling
+
+      return "launched"
+
+   def submit(self, attrs, n_pods=1):
       for i in range(n_pods):
-        #print(sh_slist)
-        process = subprocess.Popen(sh_slist,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        if process.returncode!=0:
-          raise OSError("Failed to launch Lancium job: %s"%stderr.decode())
-        # TODO: Better error handling
-        del stdout
-        del stderr
-        del process
-
+        self.submit_one(attrs)
       return "launched_%i"%n_pods
-
 
    # INTERNAL
 
