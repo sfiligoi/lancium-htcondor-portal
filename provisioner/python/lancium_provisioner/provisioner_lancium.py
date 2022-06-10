@@ -12,7 +12,7 @@ import re
 import time
 import subprocess
 
-from . import provisioner_config_parser
+import provisioner_config_parser
 
 ProvisionerLanciumConfigFields = ('condor_host',
                               'lancium_image',
