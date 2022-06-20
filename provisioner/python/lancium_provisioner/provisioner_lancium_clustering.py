@@ -26,9 +26,15 @@ class ProvisionerLanciumCluster(ProvisionerCluster):
          pod_el = el[0]
          status="%s"%pod_el['Status']
          if status=="running":
-            startd_el = el[1]
-            if startd_el!=None:
-              state = "%s"%startd_el['State']
+            startd_els = el[1]
+            if startd_els!=None:
+              state = "Unclaimed"
+              for el in startd_els:
+                elstate = "%s"%startd_el['State']
+                if elstate=="Claimed":
+                  # a single claimed is good enough
+                  state=elstate
+                  break
             else:
               state = "None"
             # we will count all Running pods that are not yet claimed
@@ -57,17 +63,21 @@ class ProvisionerLanciumClustering(ProvisionerClustering):
 
    def cluster_lancium_pods(self, lancium_pods, startd_ads):
       startd_dict={}
+      # dict of lists, since we use partitionable slots
       for ad in startd_ads:
          k=ad["LanciumJobName"]
-         startd_dict[k]=ad
+         if k in startd_dict.keys():
+           startd_dict[k].append(ad)
+         else:
+           startd_dict[k]=[ad]
          del k
 
       clusters={}
       for pod in lancium_pods:
-         if pod['Name'] in startd_dict:
-           pod_ad = startd_dict[pod['Name'] ]
+         if pod['Machine'] in startd_dict:
+           pod_ads = startd_dict[pod['Machine'] ]
          else:
-           pod_ad = None
+           pod_ads = None
          pod_attrs=[]
          key_attrs={}
          for k in self.attrs.attributes.keys():
@@ -82,7 +92,7 @@ class ProvisionerLanciumClustering(ProvisionerClustering):
          pod_key=";".join(pod_attrs)
          if pod_key not in clusters:
             clusters[pod_key] = ProvisionerLanciumCluster(pod_key, pod_attrs, key_attrs)
-         clusters[pod_key].append( (pod,pod_ad) )
+         clusters[pod_key].append( (pod,pod_ads) )
          # cleanup to avoid accidental reuse
          del pod_attrs
          del key_attrs
