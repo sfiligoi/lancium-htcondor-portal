@@ -36,10 +36,10 @@ class ProvisionerLanciumCluster(ProvisionerCluster):
               unclaimed_cnt+=1
             else:
               claimed_cnt+=1
-         elif status=="submitted":
-            # we can safely count these as unclaimed at all times
+         elif status in ("submitted","queued","created"):
+            # we can assume these are unclaimed at all times
             unclaimed_cnt+=1
-         elif status=="finished":
+         elif status in ["finished","delete pending"]:
             # we can safely ignore these
             pass
          elif status=="error":
