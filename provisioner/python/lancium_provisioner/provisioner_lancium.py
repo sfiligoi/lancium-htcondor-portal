@@ -181,9 +181,11 @@ class ProvisionerLancium:
 
       req = {
                'mem':   '%i'%int((int_vals['Memory']+1023)/1024),
-               'cores': '%i'%int(int_vals['CPUs']),
-               'gpus':  '%i'%int(int_vals['GPUs'])
+               'cores': '%i'%int(int_vals['CPUs'])
             }
+      if int(int_vals['GPUs'])>0:
+         req['gpu-count'] = '%i'%int(int_vals['GPUs'])
+         req['gpu'] = 'k80'
 
       #TODO: Request Ephemeral storage
       env_list = [ ('LANCIUM_PROVISIONER_TYPE', 'PRPHTCondorProvisioner'),
