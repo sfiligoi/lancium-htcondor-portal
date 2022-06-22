@@ -25,8 +25,17 @@ class ProvisionerEventLoop:
       self.lancium_obj = lancium_obj
       self.max_pods_per_cluster = max_pods_per_cluster
       # Hardcode for now
-      self.available_clusters = ['16;32768;8000000;;0;;','48;98304;8000000;;0;;',
-                                 '2;4096;8000000;;1;;','12;24576;8000000;;4;;','48;98304;8000000;;16;;']
+      self.available_clusters = {}
+      for c in [16,48]:
+        self.available_clusters['%i;%i;8000000;;0;;'%(c,c*2048)] = \
+           ProvisionerLanciumCluster('%i;%i;8000000;;0;;'%(c,c*2048), \
+           ["%i"%c, "%i"%(c*2048), '8000000', '', '0', '', ''], \
+           {'PodCPUs': "%i"%c, 'PodMemory': "%i"%(c*2048), 'PodDisk': '8000000', 'PodDiskVolumes': '', 'PodGPUs': '0', 'PodGPUTypes': '', 'PodLabels': ''})
+      for c in [12,48]:
+        self.available_clusters['%i;%i;8000000;;%i;;'%(c,c*2048,c/3)] = \
+           ProvisionerLanciumCluster('%i;%i;8000000;;%i;;'%(c,c*2048,c/3), \
+           ["%i"%c, "%i"%(c*2048), '8000000', '', "%i"%(c/3), '', ''], \
+           {'PodCPUs': "%i"%c, 'PodMemory': "%i"%(c*2048), 'PodDisk': '8000000', 'PodDiskVolumes': '', 'PodGPUs': "%i"%(c/3), 'PodGPUTypes': '', 'PodLabels': ''})
 
    def query_system(self):
       schedd_attrs = provisioner_clustering.ProvisionerClusteringAttributes().get_schedd_attributes()
@@ -60,9 +69,10 @@ class ProvisionerEventLoop:
          self.log_obj.sync()
          return
 
-      # just sort in place, no point in making a copy
-      self.available_clusters.sort(key=cluster_val)
-      for ckey in self.available_clusters:
+      available_cluster_keys=list(self.available_clusters.keys())
+      available_cluster_keys.sort(key=cluster_val)
+      for ckey in available_cluster_keys:
+         lancium_cluster = lancium_clusters[ckey] if ckey in lancium_clusters else self.available_clusters[ckey]
          schedd_cluster = None
          skeys=list(schedd_clusters.keys())
          skeys.sort(key=cluster_val)
@@ -77,7 +87,7 @@ class ProvisionerEventLoop:
              # ignore all others
          try:
             if schedd_cluster!=None:
-               self._provision_cluster(ckey, schedd_cluster, lancium_clusters[ckey] if ckey in lancium_clusters else None )
+               self._provision_cluster(ckey, schedd_cluster, lancium_cluster )
          except:
             self.log_obj.log_debug("[ProvisionerEventLoop] Exception in cluster '%s'"%ckey)
 
@@ -109,7 +119,8 @@ class ProvisionerEventLoop:
          # we may want to do some sanity checks here, eventually
       else:
          try:
-            job_name = self.lancium_obj.submit(schedd_cluster.get_attr_dict(), min_pods-n_pods_unclaimed)
+            #unlike the PRP provisioner, we provision multi-job slots, so use slot attrs
+            job_name = self.lancium_obj.submit(lancium_cluster.get_attr_dict(), min_pods-n_pods_unclaimed)
             self.log_obj.log_info("[ProvisionerEventLoop] Cluster '%s' Submitted %i pods as job %s"% 
                                   (cluster_id,min_pods-n_pods_unclaimed, job_name))
          except:
