@@ -10,15 +10,15 @@ import sys
 import time
 import configparser
 
-import lanicum_provisioner.provisioner_lancium as provisioner_lancium
+import lancium_provisioner.provisioner_lancium as provisioner_lancium
 import prp_provisioner.provisioner_logging as provisioner_logging
 import lancium_provisioner.provisioner_lancium_htcondor as provisioner_htcondor
 import lancium_provisioner.event_loop as event_loop
 
 def main(log_fname, max_pods_per_cluster=2, sleep_time=60):
    fconfig = configparser.ConfigParser()
-   fconfig.read(('pod.conf','osg_provisioner.conf'))
-   kconfig = provisioner_lancium.ProvisionerK8SConfig()
+   fconfig.read(('pod.conf','lancium_provisioner.conf'))
+   kconfig = provisioner_lancium.ProvisionerLanciumConfig()
    cconfig = provisioner_htcondor.ProvisionerHTCConfig()
 
    lfconfig = fconfig['lancium'] if ('lancium' in fconfig) else fconfig['DEFAULT']
