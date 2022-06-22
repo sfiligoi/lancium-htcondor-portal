@@ -13,7 +13,6 @@ class ProvisionerLanciumCluster(ProvisionerCluster):
    def __init__(self, key, attr_vals, pod_attrs):
       ProvisionerCluster.__init__(self, key, attr_vals)
       self.pod_attrs = pod_attrs
-      self.max_wait_onerror=max_wait_onerror  # in seconds
 
    def count_states(self):
       "Returns (unclaimed,claimed,failed,unknown) counts"
@@ -74,8 +73,8 @@ class ProvisionerLanciumClustering(ProvisionerClustering):
 
       clusters={}
       for pod in lancium_pods:
-         if pod['Machine'] in startd_dict:
-           pod_ads = startd_dict[pod['Machine'] ]
+         if pod['Name'] in startd_dict:
+           pod_ads = startd_dict[pod['Name'] ]
          else:
            pod_ads = None
          pod_attrs=[]
@@ -96,7 +95,7 @@ class ProvisionerLanciumClustering(ProvisionerClustering):
          # cleanup to avoid accidental reuse
          del pod_attrs
          del key_attrs
-         del pod_ad
+         del pod_ads
 
       return clusters
 
