@@ -26,6 +26,9 @@ RUN su provisioner -c 'touch /home/provisioner/.bashrc; echo "export LANG=en_US.
 RUN su provisioner -c 'echo "export PATH=\$PATH:/opt/lancium/bin/" >> /home/provisioner/.bashrc'
 RUN su provisioner -c 'echo "export PYTHONPATH=\${PYTHONPATH}:/home/provisioner/prp_provisioner" >> /home/provisioner/.bashrc'
 
+ADD provisioner_main.py /home/provisioner/provisioner_main.py
+RUN chown provisioner /home/provisioner/provisioner_main.py
+
 ADD setup_lancium_creds.sh /opt/provisioner/setup_lancium_creds.sh
 ADD setup_htcondor_creds.sh /opt/provisioner/setup_htcondor_creds.sh
 ADD provisioner_startup.sh /opt/provisioner/provisioner_startup.sh
