@@ -22,7 +22,7 @@ RUN useradd provisioner && chown -R provisioner /opt/prp_provisioner && chown -R
 
 RUN su provisioner -c '/usr/bin/ln -s /opt/prp_provisioner/prp-htcondor-portal/provisioner/python/prp_provisioner /home/provisioner/prp_provisioner; /usr/bin/ln -s /opt/lancium_provisioner/lancium-htcondor-portal/provisioner/python/lancium_provisioner /home/provisioner/lancium_provisioner'
 
-RUN su provisioner -c 'touch /home/provisioner/.bashrc; echo \'export LANG=en_US.utf8\' >> /home/provisioner/.bashrc'
-RUN su provisioner -c 'echo \'export PATH=$PATH:/opt/lancium/bin/\' >> /home/provisioner/.bashrc'
-RUN su provisioner -c 'echo \'export PYTHONPATH=${PYTHONPATH}:/home/provisioner/prp_provisioner\' >> /home/provisioner/.bashrc''
+RUN su provisioner -c 'touch /home/provisioner/.bashrc; echo "export LANG=en_US.utf8" >> /home/provisioner/.bashrc'
+RUN su provisioner -c 'echo "export PATH=\$PATH:/opt/lancium/bin/" >> /home/provisioner/.bashrc'
+RUN su provisioner -c 'echo "export PYTHONPATH=\${PYTHONPATH}:/home/provisioner/prp_provisioner" >> /home/provisioner/.bashrc'
 
