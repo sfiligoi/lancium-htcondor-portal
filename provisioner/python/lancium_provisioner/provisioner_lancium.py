@@ -276,7 +276,7 @@ class ProvisionerLancium:
          volumes[v] = self.base_pvc_volumes[v]
 
       # by default, we mount the token secret
-      volumes['configpasswd'] = 'prp-wn.token'
+      volumes['configpasswd'] = '/home/provisioner/.condor/tokens.d/prp-wn.token'
 
       return
 
