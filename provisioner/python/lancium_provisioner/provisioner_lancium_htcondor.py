@@ -13,18 +13,17 @@ import classad
 
 import provisioner_config_parser
 
-ProvisionerHTCConfigFields = ('namespace','condor_host',
+ProvisionerHTCConfigFields = ('condor_host',
                               'app_name',
                               'additional_requirements')
 
 class ProvisionerHTCConfig:
    """Config file for HTCOndor provisioning classes"""
 
-   def __init__(self, namespace,
+   def __init__(self, 
                 condor_host="cm-1.ospool.osg-htc.org",
                 app_name = 'lancium-wn',
                 additional_requirements = ""):
-      self.namespace = copy.deepcopy(namespace)
       self.condor_host = copy.deepcopy(condor_host)
       self.app_name = copy.deepcopy(app_name)
       self.additional_requirements = copy.deepcopy(additional_requirements)
@@ -33,7 +32,6 @@ class ProvisionerHTCConfig:
              dict,
              fields=ProvisionerHTCConfigFields):
       """Parse the valuies from a dictionary"""
-      self.namespace = provisioner_config_parser.update_parse(self.namespace, 'namespace', 'str', fields, dict)
       self.condor_host = provisioner_config_parser.update_parse(self.condor_host, 'condor_host', 'str', fields, dict)
       self.additional_requirements = provisioner_config_parser.update_parse(self.additional_requirements, 'additional_requirements', 'str', fields, dict)
 
@@ -53,12 +51,12 @@ class ProvisionerSchedd:
       self.additional_requirements = copy.deepcopy(config.additional_requirements)
 
    def query_idle(self, projection=[]):
-      """Return the list of idle jobs for my namespace"""
+      """Return the list of idle jobs for my provisioner"""
       return self.query(job_status=1, projection=projection)
 
 
    def query(self, job_status, projection=[]):
-      """Return the list of jobs for my namespace"""
+      """Return the list of jobs for my provisioner"""
 
       full_projection=['ClusterId','ProcId','JobStatus']+projection
       query_str='(JobStatus=?=%i)'%job_status
@@ -160,7 +158,7 @@ class ProvisionerCollector:
       self.app_name = copy.deepcopy(config.app_name)
 
    def query(self,  projection=[]):
-      """Return the list of startds for my namespace"""
+      """Return the list of startds for my provisioner"""
 
       full_projection=['Machine','Name','AuthenticatedIdentity','State','Activity','LanciumProvisionerType', 'LanciumProvisionerName']+projection
       startds=[]
