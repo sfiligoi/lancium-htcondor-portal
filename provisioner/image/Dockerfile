@@ -26,3 +26,18 @@ RUN su provisioner -c 'touch /home/provisioner/.bashrc; echo "export LANG=en_US.
 RUN su provisioner -c 'echo "export PATH=\$PATH:/opt/lancium/bin/" >> /home/provisioner/.bashrc'
 RUN su provisioner -c 'echo "export PYTHONPATH=\${PYTHONPATH}:/home/provisioner/prp_provisioner" >> /home/provisioner/.bashrc'
 
+ADD setup_lancium_creds.sh /opt/provisioner/setup_lancium_creds.sh
+ADD setup_htcondor_creds.sh /opt/provisioner/setup_htcondor_creds.sh
+ADD provisioner_startup.sh /opt/provisioner/provisioner_startup.sh
+
+#
+# Requires env variables
+# CONDOR_HOST
+
+#
+# Optional env variable
+# HTCONDOR_QUERY_INSECURE
+#
+
+CMD ["/opt/provisioner/provisioner_startup.sh"]
+
