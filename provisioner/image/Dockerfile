@@ -4,7 +4,7 @@ FROM centos:centos7
 RUN yum -y install https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el7-release-latest.rpm && \
     yum -y install epel-release \
                    yum-plugin-priorities && \
-    yum -y install less which \
+    yum -y install less which vim \
                    redhat-lsb-core && \
     yum -y install python3-pip git wget && \
     yum -y install condor python3-condor && \
