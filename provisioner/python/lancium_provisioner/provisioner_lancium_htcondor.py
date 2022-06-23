@@ -33,6 +33,7 @@ class ProvisionerHTCConfig:
              fields=ProvisionerHTCConfigFields):
       """Parse the valuies from a dictionary"""
       self.condor_host = provisioner_config_parser.update_parse(self.condor_host, 'condor_host', 'str', fields, dict)
+      self.app_name = provisioner_config_parser.update_parse(self.app_name, 'app_name', 'str', fields, dict)
       self.additional_requirements = provisioner_config_parser.update_parse(self.additional_requirements, 'additional_requirements', 'str', fields, dict)
 
 class ProvisionerSchedd:
