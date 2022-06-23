@@ -15,7 +15,7 @@ import prp_provisioner.provisioner_logging as provisioner_logging
 import lancium_provisioner.provisioner_lancium_htcondor as provisioner_htcondor
 import lancium_provisioner.event_loop as event_loop
 
-def main(log_fname, max_pods_per_cluster=10, max_submit_pods_per_cluster=400, sleep_time=300):
+def main(log_fname, max_pods_per_cluster=10, max_submit_pods_per_cluster=400, sleep_time=120):
    fconfig = configparser.ConfigParser()
    fconfig.read(('pod.conf','lancium_provisioner.conf'))
    lconfig = provisioner_lancium.ProvisionerLanciumConfig()
