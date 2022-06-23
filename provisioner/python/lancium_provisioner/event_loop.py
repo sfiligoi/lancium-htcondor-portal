@@ -18,12 +18,13 @@ def cluster_val(x):
 
 
 class ProvisionerEventLoop:
-   def __init__(self, log_obj, schedd_obj, collector_obj, lancium_obj, max_pods_per_cluster):
+   def __init__(self, log_obj, schedd_obj, collector_obj, lancium_obj, max_pods_per_cluster, max_submit_pods_per_cluster):
       self.log_obj = log_obj
       self.schedd = schedd_obj
       self.collector = collector_obj
       self.lancium_obj = lancium_obj
       self.max_pods_per_cluster = max_pods_per_cluster
+      self.max_submit_pods_per_cluster = max_submit_pods_per_cluster
       # Hardcode for now
       self.available_clusters = {}
       for c in [16,48]:
@@ -116,8 +117,13 @@ class ProvisionerEventLoop:
       n_pods_unmatched=n_pods_statearr[1]
       n_pods_claimed=n_pods_statearr[2]
       n_pods_unclaimed = n_pods_waiting+n_pods_unmatched
-      self.log_obj.log_debug("[ProvisionerEventLoop] Cluster '%s' n_jobs_idle %i n_pods_unclaimed %i min_pods %i (pods wait %i unmatched %i claimed %i)"%
-                             (cluster_id, n_jobs_idle, n_pods_unclaimed, min_pods, n_pods_waiting, n_pods_unmatched, n_pods_claimed))
+      n_pods_total = n_pods_unclaimed+n_pods_claimed
+
+      if n_pods_total>=self.max_submit_pods_per_cluster:
+         min_pods = 0
+
+      self.log_obj.log_debug("[ProvisionerEventLoop] Cluster '%s' n_jobs_idle %i n_pods_unclaimed %i min_pods %i (pods wait %i unmatched %i claimed %i max %i)"%
+                             (cluster_id, n_jobs_idle, n_pods_unclaimed, min_pods, n_pods_waiting, n_pods_unmatched, n_pods_claimed, self.max_submit_pods_per_cluster))
       if n_pods_unclaimed>=min_pods:
          pass # we have enough pods, do nothing for now
          # we may want to do some sanity checks here, eventually

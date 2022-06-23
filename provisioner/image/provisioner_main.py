@@ -15,7 +15,7 @@ import prp_provisioner.provisioner_logging as provisioner_logging
 import lancium_provisioner.provisioner_lancium_htcondor as provisioner_htcondor
 import lancium_provisioner.event_loop as event_loop
 
-def main(log_fname, max_pods_per_cluster=5, sleep_time=300):
+def main(log_fname, max_pods_per_cluster=10, max_submit_pods_per_cluster=400, sleep_time=300):
    fconfig = configparser.ConfigParser()
    fconfig.read(('pod.conf','lancium_provisioner.conf'))
    lconfig = provisioner_lancium.ProvisionerLanciumConfig()
@@ -33,7 +33,7 @@ def main(log_fname, max_pods_per_cluster=5, sleep_time=300):
    collector_obj = provisioner_htcondor.ProvisionerCollector(log_obj, '.*', cconfig)
    lancium_obj = provisioner_lancium.ProvisionerLancium(lconfig)
 
-   el = event_loop.ProvisionerEventLoop(log_obj, schedd_obj, collector_obj, lancium_obj, max_pods_per_cluster)
+   el = event_loop.ProvisionerEventLoop(log_obj, schedd_obj, collector_obj, lancium_obj, max_pods_per_cluster, max_submit_pods_per_cluster)
    while True:
       log_obj.log_debug("[Main] Iteration started, schedd whitelist='%s'"%schedd_whitelist)
       try:
