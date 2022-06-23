@@ -29,7 +29,7 @@ class ProvisionerLanciumCluster(ProvisionerCluster):
             if startd_els!=None:
               state = "Unclaimed"
               for el in startd_els:
-                elstate = "%s"%startd_el['State']
+                elstate = "%s"%el['State']
                 if elstate=="Claimed":
                   # a single claimed is good enough
                   state=elstate
