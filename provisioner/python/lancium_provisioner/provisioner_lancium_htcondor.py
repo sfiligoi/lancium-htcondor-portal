@@ -161,7 +161,7 @@ class ProvisionerCollector:
    def query(self,  projection=[]):
       """Return the list of startds for my provisioner"""
 
-      full_projection=['Machine','Name','AuthenticatedIdentity','State','Activity','LanciumProvisionerType', 'LanciumProvisionerName']+projection
+      full_projection=['Machine','Name','AuthenticatedIdentity','State','Activity','LanciumProvisionerType', 'LanciumProvisionerName', 'LanciumJobName']+projection
       startds=[]
 
       c = htcondor.Collector()
