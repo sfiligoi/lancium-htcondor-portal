@@ -28,12 +28,12 @@ class ProvisionerEventLoop:
       self.available_clusters = {}
       for c in [16,48]:
         self.available_clusters['%i;%i;8000000;;0;;'%(c,c*2048)] = \
-           ProvisionerLanciumCluster('%i;%i;8000000;;0;;'%(c,c*2048), \
+           provisioner_lancium_clustering.ProvisionerLanciumCluster('%i;%i;8000000;;0;;'%(c,c*2048), \
            ["%i"%c, "%i"%(c*2048), '8000000', '', '0', '', ''], \
            {'PodCPUs': "%i"%c, 'PodMemory': "%i"%(c*2048), 'PodDisk': '8000000', 'PodDiskVolumes': '', 'PodGPUs': '0', 'PodGPUTypes': '', 'PodLabels': ''})
       for c in [12,48]:
         self.available_clusters['%i;%i;8000000;;%i;;'%(c,c*2048,c/3)] = \
-           ProvisionerLanciumCluster('%i;%i;8000000;;%i;;'%(c,c*2048,c/3), \
+           provisioner_lancium_clustering.ProvisionerLanciumCluster('%i;%i;8000000;;%i;;'%(c,c*2048,c/3), \
            ["%i"%c, "%i"%(c*2048), '8000000', '', "%i"%(c/3), '', ''], \
            {'PodCPUs': "%i"%c, 'PodMemory': "%i"%(c*2048), 'PodDisk': '8000000', 'PodDiskVolumes': '', 'PodGPUs': "%i"%(c/3), 'PodGPUTypes': '', 'PodLabels': ''})
 
