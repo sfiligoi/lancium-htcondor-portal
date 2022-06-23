@@ -131,7 +131,7 @@ class ProvisionerEventLoop:
          try:
             #unlike the PRP provisioner, we provision multi-job slots, so use slot attrs
             job_name = self.lancium_obj.submit(lancium_cluster.get_attr_dict(), min_pods-n_pods_unclaimed)
-            self.log_obj.log_info("[ProvisionerEventLoop] Cluster '%s' Submitted %i pods as job %s"% 
+            self.log_obj.log_info("[ProvisionerEventLoop] Cluster '%s' Submitted %i pods, last job name is %s"% 
                                   (cluster_id,min_pods-n_pods_unclaimed, job_name))
          except:
             self.log_obj.log_error("[ProvisionerEventLoop] Cluster '%s' Failed to submit %i pods"%

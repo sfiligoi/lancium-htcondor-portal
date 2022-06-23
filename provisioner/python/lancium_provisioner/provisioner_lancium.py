@@ -239,12 +239,13 @@ class ProvisionerLancium:
         raise OSError("Failed to launch Lancium job: %s"%stderr.decode())
       # TODO: Better error handling
 
-      return "launched"
+      return job_name
 
    def submit(self, attrs, n_pods=1):
+      job_name="None"
       for i in range(n_pods):
-        self.submit_one(attrs)
-      return "launched_%i"%n_pods
+        job_name=self.submit_one(attrs)
+      return job_name
 
    # INTERNAL
 
