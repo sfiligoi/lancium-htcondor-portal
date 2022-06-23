@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lancium-osgvo
+  namespace: osg-opportunistic
+  labels:
+    k8s-app: lancium-osgvo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: lancium-osgvo
+  template:
+    metadata: 
+      labels:
+        k8s-app: lancium-osgvo
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: lancium
+        image: sfiligoi/lancium-htcondor-provisioner:latest
+        imagePullPolicy: Always
+        #command: ["sh", "-c", "sleep infinity"]
+        env:
+        - name: CONDOR_HOST
+          value: "cm-1.ospool.osg-htc.org,cm-2.ospool.osg-htc.org"
+        - name: HTCONDOR_QUERY_INSECURE
+          value: "yes"
+        resources:
+           limits:
+             memory: 4Gi
+             cpu: 2
+           requests:
+             memory: 1Gi
+             cpu: 0.5
+        volumeMounts:
+        - name: condorpasswd
+          mountPath: /etc/condor/tokens.d/prp-wn.token
+          subPath: prp-wn.token
+          readOnly: true
+        - name: lanciumpasswd
+          mountPath: /etc/lancium/tokens.d/lancium_key.bin
+          subPath: lancium_key.bin
+          readOnly: true
+        - name: provconf
+          mountPath: /home/provisioner/lancium_provisioner.conf
+          subPath: lancium_provisioner.conf
+        - name: log-pvc
+          mountPath: /var/log/provisioner
+      volumes:
+      - name: condorpasswd
+        secret:
+          secretName: lancium-htcondor-wn-secret
+          items:
+             - key: prp-wn.token
+               path: prp-wn.token
+          defaultMode: 256
+      - name: lanciumpasswd
+        secret:
+          secretName: lancium-secret
+          items:
+             - key: lancium_key.bin
+               path: lancium_key.bin
+          defaultMode: 256
+      - name: provconf
+        configMap:
+          name: lancium-config
+          items:
+             - key: lancium_provisioner.conf
+               path: lancium_provisioner.conf
+      - name: log-pvc
+        persistentVolumeClaim:
+          claimName: lancium-provisioner-log-pvc
+

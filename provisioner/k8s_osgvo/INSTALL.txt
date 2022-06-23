@@ -1,0 +1,13 @@
+1) needs token in ospool-pep.lancium.com
+# used by both provisioner and WNs
+kubectl create secret generic lancium-htcondor-wn-secret -n osg-opportunistic --from-file=prp-wn.token=ospool-pep.lancium.com
+
+2) lancium key
+kubectl create secret generic lancium-secret -n osg-opportunistic --from-file=lancium_key.bin=lancium_key.bin
+
+3) create config file
+kubectl create configmap lancium-config -n osg-opportunistic --from-file=lancium_provisioner.conf=lancium_provisioner.conf
+
+4) Launch yamls
+kubectl create -f pvc-provisioner-logs.yaml
+kubectl create -f lancium-osgvo.yaml
