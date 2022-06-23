@@ -15,8 +15,9 @@ class ProvisionerLanciumCluster(ProvisionerCluster):
       self.pod_attrs = pod_attrs
 
    def count_states(self):
-      "Returns (unclaimed,claimed,failed,unknown) counts"
-      unclaimed_cnt = 0
+      "Returns (waiting,unmatched,claimed,failed,unknown) counts"
+      waiting_cnt = 0
+      unmatched_cnt = 0
       claimed_cnt = 0
       failed_cnt = 0
       unknown_cnt = 0
@@ -37,24 +38,30 @@ class ProvisionerLanciumCluster(ProvisionerCluster):
             else:
               state = "None"
             # we will count all Running pods that are not yet claimed
-            if state!="Claimed":
-              unclaimed_cnt+=1
+            if state=="None":
+              waiting_cnt+=1
+            elif state!="Claimed":
+              unmatched_cnt+=1
             else:
               claimed_cnt+=1
-         elif status in ("submitted","queued","created"):
-            # we can assume these are unclaimed at all times
-            unclaimed_cnt+=1
+         elif status in ("submitted","queued"):
+            # we can assume these are waiting at all times
+            waiting_cnt+=1
          elif status in ["finished","delete pending"]:
             # we can safely ignore these
             pass
          elif status=="error":
             failed_cnt+=1
+         elif status=="created":
+            unknown_cnt+=1
          else:
             unknown_cnt+=1
-      return (unclaimed_cnt,claimed_cnt,failed_cnt,unknown_cnt)
+      return (waiting_cnt,unmatched_cnt,claimed_cnt,failed_cnt,unknown_cnt)
 
    def count_unclaimed(self):
-      return self.count_states()[0]
+      (waiting_cnt,unmatched_cnt,claimed_cnt,failed_cnt,unknown_cnt)=self.count_states()
+      # "logically unclaimed" = waiting+"running unmatched"
+      return waiting_cnt+unmatched_cnt
 
 class ProvisionerLanciumClustering(ProvisionerClustering):
    def __init__(self):
