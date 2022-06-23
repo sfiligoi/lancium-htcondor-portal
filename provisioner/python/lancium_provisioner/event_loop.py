@@ -111,9 +111,13 @@ class ProvisionerEventLoop:
       if min_pods>self.max_pods_per_cluster:
          min_pods = self.max_pods_per_cluster
 
-      n_pods_unclaimed = lancium_cluster.count_unclaimed() if lancium_cluster!=None else 0
-      self.log_obj.log_debug("[ProvisionerEventLoop] Cluster '%s' n_jobs_idle %i n_pods_unclaimed %i min_pods %i"%
-                             (cluster_id, n_jobs_idle, n_pods_unclaimed, min_pods))
+      n_pods_statearr=lancium_cluster.count_states() if lancium_cluster!=None else (0,0,0,0,0)
+      n_pods_waiting=n_pods_statearr[0]
+      n_pods_unmatched=n_pods_statearr[1]
+      n_pods_claimed=n_pods_statearr[2]
+      n_pods_unclaimed = n_pods_waiting+n_pods_unmatched
+      self.log_obj.log_debug("[ProvisionerEventLoop] Cluster '%s' n_jobs_idle %i n_pods_unclaimed %i min_pods %i (pods wait %i unmatched %i claimed %i)"%
+                             (cluster_id, n_jobs_idle, n_pods_unclaimed, min_pods, n_pods_waiting, n_pods_unmatched, n_pods_claimed))
       if n_pods_unclaimed>=min_pods:
          pass # we have enough pods, do nothing for now
          # we may want to do some sanity checks here, eventually
