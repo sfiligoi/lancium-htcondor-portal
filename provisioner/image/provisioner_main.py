@@ -15,7 +15,7 @@ import prp_provisioner.provisioner_logging as provisioner_logging
 import lancium_provisioner.provisioner_lancium_htcondor as provisioner_htcondor
 import lancium_provisioner.event_loop as event_loop
 
-def main(log_fname, max_pods_per_cluster=10, max_submit_pods_per_cluster=400, sleep_time=120):
+def main(log_fname):
    fconfig = configparser.ConfigParser()
    fconfig.read(('pod.conf','lancium_provisioner.conf'))
    lconfig = provisioner_lancium.ProvisionerLanciumConfig()
@@ -32,6 +32,10 @@ def main(log_fname, max_pods_per_cluster=10, max_submit_pods_per_cluster=400, sl
    schedd_obj = provisioner_htcondor.ProvisionerSchedd(log_obj, {schedd_whitelist:'.*'}, cconfig)
    collector_obj = provisioner_htcondor.ProvisionerCollector(log_obj, '.*', cconfig)
    lancium_obj = provisioner_lancium.ProvisionerLancium(lconfig)
+
+   max_pods_per_cluster = int(lfconfig.get('max_pods_per_cluster','20'))
+   max_submit_pods_per_cluster = int(lfconfig.get('max_submit_pods_per_cluster','400'))
+   sleep_time = int(fconfig['DEFAULT'].get('sleep_time','120'))
 
    el = event_loop.ProvisionerEventLoop(log_obj, schedd_obj, collector_obj, lancium_obj, max_pods_per_cluster, max_submit_pods_per_cluster)
    while True:
