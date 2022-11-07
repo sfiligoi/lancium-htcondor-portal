@@ -2,7 +2,7 @@ FROM rockylinux:8
 
 # OSG RPMs
 RUN yum -y install https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el8-release-latest.rpm && \
-    yum -y install epel-release &&
+    yum -y install epel-release && \
     yum -y install less which vim \
                    redhat-lsb-core && \
     yum -y install python3-pip git wget && \
