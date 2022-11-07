@@ -63,6 +63,17 @@ class ProvisionerLanciumCluster(ProvisionerCluster):
       # "logically unclaimed" = waiting+"running unmatched"
       return waiting_cnt+unmatched_cnt
 
+   def get_finished(self):
+      "Returns ids of all the finished jobs"
+      els = []
+
+      for el in self.elements:
+         pod_el = el[0]
+         status="%s"%pod_el['Status']
+         if status in ["finished","error"]:
+            els.append(pod_el['lancium-id'])
+      return els
+
 class ProvisionerLanciumClustering(ProvisionerClustering):
    def __init__(self):
       ProvisionerClustering.__init__(self)

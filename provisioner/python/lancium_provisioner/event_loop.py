@@ -37,6 +37,7 @@ class ProvisionerEventLoop:
            provisioner_lancium_clustering.ProvisionerLanciumCluster('%i;%i;8000000;;%i;;'%(c,c*2048,c/3), \
            ["%i"%c, "%i"%(c*2048), '8000000', '', "%i"%(c/3), '', ''], \
            {'PodCPUs': "%i"%c, 'PodMemory': "%i"%(c*2048), 'PodDisk': '8000000', 'PodDiskVolumes': '', 'PodGPUs': "%i"%(c/3), 'PodGPUTypes': '', 'PodLabels': ''})
+      self.known_finished = {}
 
    def query_system(self):
       schedd_attrs = provisioner_clustering.ProvisionerClusteringAttributes().get_schedd_attributes()
@@ -94,6 +95,13 @@ class ProvisionerEventLoop:
 
       self.log_obj.sync()
 
+      #now do some cleanup
+      for ckey in lancium_clusters:
+         lancium_cluster = lancium_clusters[ckey]
+         self._cleanup_cluster(ckey,lancium_cluster)
+
+      self.log_obj.sync()
+
 
    # INTERNAL
    def _provision_cluster(self, cluster_id, schedd_cluster, lancium_cluster):
@@ -138,4 +146,28 @@ class ProvisionerEventLoop:
                                    (cluster_id,min_pods-n_pods_unclaimed))
 
       return
+
+   # INTERNAL
+   def _cleanup_cluster(self, cluster_id, lancium_cluster):
+      "Remove finished jobs"
+      count_deleted = 0
+      finished_jobs = lancium_cluster.get_finished()
+      for lancium_job in lancium_jobs:
+        if lancium_job in self.known_finished:
+           if self.known_finished[lancium_job]<10:
+              # still too new
+              self.known_finished[lancium_job] += 1
+           else:
+              try:
+                 if self.lancium_obj.delete_one(lancium_job):
+                    count_deleted = count_deleted + 1
+              except:
+                 pass
+              # ignore any that I could not delete, will retry at next iteration
+        else:
+           # do not delete immediately, but remember I saw it before
+           self.known_finished[lancium_job] = 1
+
+      if count_deleted>0:
+         self.log_obj.log_info("[ProvisionerEventLoop] Cluster '%s' Deleted %i finished pods"%(cluster_id,count_deleted))
 

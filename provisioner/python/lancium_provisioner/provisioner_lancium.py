@@ -247,6 +247,15 @@ class ProvisionerLancium:
         job_name=self.submit_one(attrs)
       return job_name
 
+   def delete_one(self, lancium_id):
+      "Delete one Lancium job, return True if successful"
+      # create the cmdline string (as a list first)
+      sh_slist=["lcli", "job", "delete", "%s"%lancium_id]
+
+      process = subprocess.Popen(sh_slist,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      stdout, stderr = process.communicate()
+      return process.returncode==0
+
    # INTERNAL
 
    # These can be re-implemented by derivative classes
