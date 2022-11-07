@@ -1,8 +1,9 @@
-FROM rockylinux:8
+FROM centos:centos7
 
 # OSG RPMs
-RUN yum -y install https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el8-release-latest.rpm && \
-    yum -y install epel-release && \
+RUN yum -y install https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el7-release-latest.rpm && \
+    yum -y install epel-release \
+                   yum-plugin-priorities && \
     yum -y install less which vim \
                    redhat-lsb-core && \
     yum -y install python3-pip git wget && \
