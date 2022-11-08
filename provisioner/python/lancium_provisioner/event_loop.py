@@ -152,7 +152,7 @@ class ProvisionerEventLoop:
       "Remove finished jobs"
       count_deleted = 0
       finished_jobs = lancium_cluster.get_finished()
-      for lancium_job in lancium_jobs:
+      for lancium_job in finished_jobs:
         if lancium_job in self.known_finished:
            if self.known_finished[lancium_job]<10:
               # still too new
