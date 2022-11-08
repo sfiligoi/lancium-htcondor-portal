@@ -72,11 +72,9 @@ class ProvisionerSchedd:
          sname=sclassad['Name']
          try:
             myjobs=s.xquery(query_str, full_projection)
+            self._append_jobs(sname, jobs, myjobs)
          except:
             self.log_obj.log_debug("[ProvisionerSchedd] Failed to query HTCondor schedd '%s'"%sname)
-            raise
-
-         self._append_jobs(sname, jobs, myjobs)
 
       return jobs
 
