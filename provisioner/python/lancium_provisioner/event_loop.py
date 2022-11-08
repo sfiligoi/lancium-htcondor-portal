@@ -158,12 +158,14 @@ class ProvisionerEventLoop:
               # still too new
               self.known_finished[lancium_job] += 1
            else:
-              try:
-                 if self.lancium_obj.delete_one(lancium_job):
+              # limit deletions, to not slow down the submissions too much
+              if count_deleted<=100:
+                try:
+                  if self.lancium_obj.delete_one(lancium_job):
                     count_deleted = count_deleted + 1
-              except:
-                 pass
-              # ignore any that I could not delete, will retry at next iteration
+                except:
+                  pass
+                # ignore any that I could not delete, will retry at next iteration
         else:
            # do not delete immediately, but remember I saw it before
            self.known_finished[lancium_job] = 1
